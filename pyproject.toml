@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openhab-python-entwicklung-beispiele"
+version = "1.0.0"
+description = "Beispielprogramme zum Buch »openHAB & Python-Entwicklung« (Reihe openHAB REST API)"
+authors = [{ name = "Michael Christian Dörflinger" }]
+requires-python = ">=3.10"
+dependencies = [
+    "python-openhab-rest-client>=21.4.0",
+    "openhab-test-suite>=22.0.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "flask>=3"]
+web = ["flask>=3"]
+
+[tool.setuptools]
+packages = ["buchlib"]
+
+[tool.pytest.ini_options]
+testpaths = ["kapitel15_tests/tests"]
+markers = ["integration: braucht ein laufendes openHAB oder den Mock-Server"]
