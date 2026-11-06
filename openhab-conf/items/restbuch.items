@@ -15,6 +15,6 @@ String  Haus_Status          "Status [%s]"       <text>        (gHaus)
 
 // Philosophie 2: ein selbst gebautes Gerät meldet sich bei openHAB
 Number:Temperature Werkstatt_Temperatur "Werkstatt [%.1f °C]" <temperature> (gWerkstatt) ["Measurement", "Temperature"]
-Number:Dimensionless Werkstatt_Feuchte  "Feuchte [%.0f %%]"   <humidity>    (gWerkstatt) ["Measurement", "Humidity"]
+Number:Dimensionless Werkstatt_Feuchte  "Feuchte [%.0f %%]"   <humidity>    (gWerkstatt) ["Measurement", "Humidity"] { unit="%" }
 Switch  Werkstatt_Luefter    "Lüfter"            <fan>         (gWerkstatt) ["Switch"] { autoupdate="false" }
 DateTime Werkstatt_LetzteMeldung "Letzte Meldung [%1$tH:%1$tM:%1$tS]" <time> (gWerkstatt)

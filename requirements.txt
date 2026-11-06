@@ -1,4 +1,4 @@
-python-openhab-rest-client>=21.4.0
-openhab-test-suite>=22.0.1
+python-openhab-rest-client>=21.4.1
+openhab-test-suite>=22.0.2
 flask>=3.0
 pytest>=8.0

@@ -1,28 +1,31 @@
 """Kapitel 10: Fehler erkennen – die Bibliothek liefert Fehlerobjekte."""
-from openhab import Items
+import os
 
-from buchlib import create_client
+from openhab import OpenHABClient, Items
 
-
-class OpenHABFehler(Exception):
-    """Wird geworfen, wenn openHAB eine Anfrage ablehnt."""
-
-
-def pruefe(antwort):
-    """Wandelt das Fehlerobjekt der Bibliothek in eine Ausnahme um."""
-    if isinstance(antwort, dict) and "error" in antwort:
-        raise OpenHABFehler(antwort["error"])
-    return antwort
+client = OpenHABClient(os.environ.get("OPENHAB_URL", "http://127.0.0.1:8080"),
+                       token=os.environ.get("OPENHAB_TOKEN"))
+items = Items(client)
 
 
-items = Items(create_client())
+def ist_fehler(antwort) -> bool:
+    """Alle Methoden melden Ablehnungen als Dictionary mit dem Schlüssel 'error'."""
+    return isinstance(antwort, dict) and "error" in antwort
+
 
 for name, command in [("Wohnzimer_Licht", "ON"),      # Tippfehler im Namen
                       ("Wohnzimmer_Licht", "HALB"),     # ungültiger Command
                       ("Flur_Haustuer", "OPEN"),        # Contact: kein Command
                       ("Wohnzimmer_Licht", "OFF")]:     # korrekt
-    try:
-        pruefe(items.sendCommand(name, command))
+    antwort = items.sendCommand(name, command)
+    if ist_fehler(antwort):
+        print(f"FEHLER  {name} <- {command}: {antwort['error']}")
+    else:
         print(f"OK      {name} <- {command}")
-    except OpenHABFehler as fehler:
-        print(f"FEHLER  {name} <- {command}: {fehler}")
+
+# Ein Item aus einer .items-Datei lässt sich steuern, aber nicht löschen
+print("\nlöschen:", items.deleteItem("Wohnzimmer_Licht"))
+
+# Netzwerkfehler: falsche Adresse, kurze Wartezeit
+falsch = OpenHABClient("http://127.0.0.1:9", token="x", timeout=2)
+print("anderer Server:", Items(falsch).getItemState("Wohnzimmer_Licht"))

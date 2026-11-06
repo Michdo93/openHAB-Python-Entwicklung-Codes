@@ -1,9 +1,11 @@
 """Kapitel 10: Items lesen – alle, eines, nur den Zustand."""
-from openhab import Items
+import os
 
-from buchlib import create_client
+from openhab import OpenHABClient, Items
 
-items = Items(create_client())
+client = OpenHABClient(os.environ.get("OPENHAB_URL", "http://127.0.0.1:8080"),
+                       token=os.environ.get("OPENHAB_TOKEN"))
+items = Items(client)
 
 # 1. Alle Items, auf drei Felder beschränkt (spart Daten)
 alle = items.getItems(fields="name,type,state")

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Home</title>
+<style>
+  :root { --bg:#14181f; --karte:#1f2530; --text:#e8ecf1; --akzent:#e64a19; --an:#f4b400; }
+  body { margin:0; font-family:system-ui,sans-serif; background:var(--bg); color:var(--text); }
+  h1 { font-weight:500; padding:16px 20px 0; margin:0; }
+  #raster { display:grid; gap:14px; padding:20px;
+            grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); }
+  .karte { background:var(--karte); border-radius:14px; padding:16px; min-height:96px;
+           display:flex; flex-direction:column; justify-content:space-between; }
+  .karte .label { opacity:.7; font-size:.9rem; }
+  .karte .wert  { font-size:1.6rem; }
+  .karte.schalter { cursor:pointer; user-select:none; }
+  .karte.an { box-shadow:inset 0 0 0 2px var(--an); }
+  .karte.an .wert { color:var(--an); }
+  input[type=range] { width:100%; accent-color:var(--akzent); }
+  button { background:var(--akzent); color:#fff; border:0; border-radius:8px; padding:10px 16px; }
+</style>
+</head>
+<body>
+<h1>Smart Home</h1>
+<div id="raster"></div>
+<p style="padding:0 20px">
+  {% for szene in szenen %}<button onclick="szene('{{ szene }}')">Szene {{ szene }}</button>{% endfor %}
+</p>
+<script>
+const raster = document.getElementById("raster");
+const karten = {};
+
+function senden(name, command) {                          // Controller
+  fetch(`/api/items/${name}`, {method: "POST", body: command});
+}
+function szene(name) { fetch(`/api/szenen/${name}`, {method: "POST"}); }
+
+function karte(item) {                                     // View: Karte anlegen
+  const k = document.createElement("div");
+  k.className = "karte";
+  k.innerHTML = `<span class="label">${item.label}</span><span class="wert"></span>`;
+  if (item.type === "Switch") {
+    k.classList.add("schalter");
+    k.onclick = () => senden(item.name, k.dataset.anzeige === "ON" ? "OFF" : "ON");
+  }
+  if (item.type === "Dimmer" || item.type === "Rollershutter") {
+    const r = document.createElement("input");
+    r.type = "range"; r.min = 0; r.max = 100;
+    r.onchange = () => senden(item.name, r.value);
+    k.appendChild(r);
+  }
+  karten[item.name] = k; raster.appendChild(k);
+}
+
+function anzeigen(name, anzeige) {                         // View: Wert setzen
+  const k = karten[name];
+  k.dataset.anzeige = anzeige;
+  k.querySelector(".wert").textContent = anzeige;
+  k.classList.toggle("an", anzeige === "ON");
+  const r = k.querySelector("input");
+  if (r && !isNaN(parseFloat(anzeige))) r.value = parseFloat(anzeige);
+}
+
+fetch("/api/items").then(r => r.json()).then(liste => liste.forEach(i => {
+  karte(i); anzeigen(i.name, i.anzeige);
+}));
+new EventSource("/api/stream").onmessage = e => {          // State per SSE
+  const {name, anzeige} = JSON.parse(e.data);
+  if (karten[name]) anzeigen(name, anzeige);
+};
+</script>
+</body>
+</html>

@@ -1,11 +1,3 @@
-// Things der Übungsumgebung
-Bridge mqtt:broker:mosquitto "Mosquitto" [ host="127.0.0.1", port=1883, secure=false ] {
-    Thing topic werkstatt "Werkstatt-Sensor" {
-        Channels:
-            Type number : temperatur "Temperatur" [ stateTopic="werkstatt/temperatur" ]
-    }
-}
-Thing astro:sun:zuhause "Sonnendaten" [ geolocation="48.0950,8.6630", interval=300 ]
-Bridge hue:bridge:bridge "Hue Bridge" [ ipAddress="192.0.2.10", applicationKey="nicht-gesetzt" ] {
-    Thing 0210 3 "Farblampe Wohnzimmer" [ lightId="3" ]
-}
+// Things der Übungsumgebung – ohne Hardware: Das Astro-Binding berechnet
+// Sonnenstand, Auf- und Untergang allein aus Ort und Uhrzeit.
+Thing astro:sun:zuhause "Sonnendaten Zuhause" [ geolocation="48.0950,8.6630", interval=60 ]

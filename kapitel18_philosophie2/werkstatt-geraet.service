@@ -1,0 +1,22 @@
+# systemd-Unit für das virtuelle Werkstattgerät
+#   sudo cp werkstatt-geraet.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now werkstatt-geraet
+[Unit]
+Description=Virtuelles Werkstattgerät für openHAB (REST API)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=openhab-geraet
+WorkingDirectory=/opt/openhab-python-entwicklung
+Environment=OPENHAB_URL=http://127.0.0.1:8080
+# Datei mit einer Zeile OPENHAB_TOKEN=oh.… (ohne »export«), nur für root lesbar
+EnvironmentFile=/etc/openhab-geraet.env
+ExecStart=/opt/openhab-python-entwicklung/.venv/bin/python \
+    kapitel18_philosophie2/werkstatt_geraet.py --intervall 30
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

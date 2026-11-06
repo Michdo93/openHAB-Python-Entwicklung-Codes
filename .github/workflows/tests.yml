@@ -1,4 +1,5 @@
-# Führt alle Tests bei jedem Push aus – gegen den Mock-Server, ohne echtes openHAB.
+# Unit-Tests bei jedem Push. Die Integrationstests brauchen ein echtes openHAB
+# und werden in der CI automatisch übersprungen (siehe kapitel19_tests/tests/conftest.py).
 name: Tests
 on: [push, pull_request]
 jobs:
@@ -9,5 +10,5 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
-      - run: pip install -r requirements.txt && pip install -e .
-      - run: pytest -v
+      - run: pip install -r requirements.txt
+      - run: pytest -v kapitel19_tests
